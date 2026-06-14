@@ -1,0 +1,13 @@
+.git
+.gitattributes
+.gitignore
+.vscode
+.idea
+singularity_*
+LICENSE
+README*
+__pycache__/
+*.pyc
+*.sif
+*.pt
+*.png

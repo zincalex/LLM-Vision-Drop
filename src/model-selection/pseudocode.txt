@@ -1,0 +1,55 @@
+INPUT:  dataset (.h5 format split in train, val & test)
+        models 
+        prune_methods (block_drop, layer_drop_attn, layer_drop_attn, joint_layer_drop)
+        drop_nums (list of with numbers of layers to be dropped e.g [4, 8, 12, ...])
+        early_stop_threshold (percentage after which accuracy drop is unrecoverable)
+
+FOR EACH model in models:
+    download model;
+    store config files;
+    cache model weights once;
+
+    FOR EACH prune_method in prune_methods:
+
+        // BASELINE
+        dir, is_present = look_for_pruned_model(model, prune_method, drop_n=0);
+        IF is_present is False:
+            return -1;
+
+        swap pruned_config_files from dir into base model dir;
+        load model from cached weights;
+        quick finetune head (train split, 5 epochs);
+        evaluate on val → baseline_acc;
+        log baseline;
+
+        // SEARCH
+        FOR EACH drop_n in drop_nums:
+            dir, is_present = look_for_pruned_model(model, prune_method, drop_n);
+            IF is_present is False:
+                CONTINUE;
+
+            swap pruned_config_files from dir into base model dir;
+            load model from cached weights;
+            quick finetune head (train split, 2 epochs);
+            load model from cached weights;
+            evaluate on val → current_acc;
+
+            IF baseline_acc - current_acc > early_stop_threshold :
+                BREAK; 
+            IF current_acc > best_acc :
+                update best (model, prune_method, drop_n);
+
+            log result
+
+// SELECT WINNER
+winner = variant with highest val_acc across all (model, prune_method, drop_n) combinations;
+
+// DEEP FINETUNE
+dir, _ = look_for_pruned_model(winner.model, winner.prune_method, winner.drop_n);
+swap pruned_config_files from dir into base model dir;
+load model from cached weights;
+deep finetune head on train+val combined (20 epochs, warmup, cosine LR);
+evaluate on test → final_metrics;
+save head weights + logits;
+
+OUTPUT: winner config, final_metrics

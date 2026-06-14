@@ -1,0 +1,48 @@
+Bootstrap: docker
+From: pytorch/pytorch:2.7.0-cuda12.8-cudnn9-devel
+
+%post
+    apt-get update && apt-get install -y git git-lfs wget libprotobuf-dev protobuf-compiler && rm -rf /var/lib/apt/lists/*
+
+    pip install --upgrade pip
+
+    pip install \
+        torch==2.7.0 \
+        torchvision==0.22.0 \
+        torchaudio==2.7.0 \
+        --extra-index-url https://download.pytorch.org/whl/cu128
+
+    pip install \
+        "transformers==5.3.0" \
+        "tokenizers==0.22.2" \
+        "datasets==4.8.3" \
+        "accelerate==1.13.0" \
+        "deepspeed==0.18.8" \
+        "peft==0.18.1" \
+        "safetensors==0.7.0" \
+        "bitsandbytes==0.49.2" \
+        "einops==0.8.2" \
+        "sentencepiece==0.2.1" \
+        "protobuf==7.34.1" \
+        "gradio==3.50.2" \
+        "pyarrow==23.0.1" \
+        "scipy" "numpy" "pandas" "matplotlib" "seaborn" "h5py"\
+        "nltk" "jieba" "rouge-chinese" \
+        "uvicorn" "pydantic" "fastapi" "sse-starlette" \
+        "evaluate==0.4.6" \
+        "jsonlines" \
+        "numexpr" \
+        "pybind11==2.6.2" \
+        "pytablewriter" \
+        "rouge-score==0.0.4" \
+        "sacrebleu>=1.5.0" \
+        "scikit-learn>=0.24.1" \
+        "sqlitedict" \
+        "tqdm-multiprocess" \
+        "zstandard" \
+        "dill" \
+        "word2number" \
+        "more_itertools"
+
+    git clone --branch v0.4.11 --depth 1 https://github.com/EleutherAI/lm-evaluation-harness.git /opt/lm-evaluation-harness
+    cd /opt/lm-evaluation-harness && pip install -e .
