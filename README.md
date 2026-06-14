@@ -1,11 +1,13 @@
-<h1 align="center">Uncovering the Redundancy in Transformers via a Unified Study of Layer Dropping</h1>
+<h1 align="center">Vision Drop and Automatic Vision Model Selection for Image Classification Tasks</h1>
 
+<!---  
 <p align="center">
-  <a href="https://openreview.net/forum?id=1I7PCbOPfe"><img src="https://img.shields.io/badge/Paper-OpenReview-8A2BE2" alt="OpenReview"></a>
+  <> <a href="https://openreview.net/forum?id=1I7PCbOPfe"><img src="https://img.shields.io/badge/Paper-OpenReview-8A2BE2" alt="OpenReview"></a>
   <a href="https://huggingface.co/collections/LLM-Drop/llm-drop-66dde616140f04eb18424a0a"><img src="https://img.shields.io/badge/Models-Hugging%20Face-F9D371" alt="Hugging Face"></a>
   <img src="https://img.shields.io/badge/TMLR-2026-0B7285" alt="TMLR 2026">
   <img src="https://img.shields.io/badge/Python-3.10+-green" alt="Python 3.10+">
 </p>
+--->
 
 <p align="center">
   <strong>Alessandro Viespoli</strong>
@@ -16,8 +18,7 @@
 </p>
 
 <p align="center">
-  <a href="https://case-lab-umd.github.io/LLM-Drop/">🌐 Project Page</a> •
-  <a href="#-news">📰 News</a> •
+  <!---  <a href="https://case-lab-umd.github.io/LLM-Drop/">🌐 Project Page</a> • --->
   <a href="#-installation">⚙️ Installation</a> •
   <a href="#-repository-layout">📦 Layout</a> •
   <a href="#-prepare-models">🧰 Models</a> •
@@ -44,24 +45,17 @@ The dropping pipeline is built on [LLaMA-Factory](https://github.com/hiyouga/LLa
 
 ![Layer-Drop.svg](Layer_Drop.svg)
 
-## 📰 News
-
-- **Feb 2026:** Paper published in **Transactions on Machine Learning Research (TMLR)**.
-- **May 2025:** 🏆 Awarded the Qualcomm Innovation Fellowship (QIF) North America for *"Less Attention, Much Faster: Toward a Future of Efficiency-Optimized Transformer Architectures."*
-- **Nov 2024:** Added support for more model families (Gemma2, Baichuan, DeepSeek, Yi, Solar).
-- **Sep 2024:** Released dropped-model checkpoints on [Hugging Face](https://huggingface.co/collections/LLM-Drop/llm-drop-66dde616140f04eb18424a0a).
-- **Jun 2024:** Released arXiv preprint and code.
-
 ## ⚙️ Installation
 
 ```bash
 conda create -n llm-drop python=3.10 -y
 conda activate llm-drop
 
-git clone https://github.com/CASE-Lab-UMD/LLM-Drop.git
-cd LLM-Drop
+git clone https://github.com/zincalex/LLM-Vision-Drop.git
+cd LLM-Vision-Drop
 
 # Core dropping pipeline
+pip install -r requirements.txt
 pip install -e .
 ```
 
@@ -87,28 +81,28 @@ cd ../../../../../..
 
 ```
 src/
-├── compress.py                   # Entry point for dropping/compression
-├── benchmark_speed.py            # LLM inference speed benchmark
-├── benchmark_vision_speed.py     # Vision model speed + FLOPs benchmark
+├── compress.py                                # Entry point for dropping/compression
+├── benchmark_speed.py                         # LLM inference speed benchmark
+├── benchmark_vision_speed.py                  # Vision model speed + FLOPs benchmark
 ├── llmtuner/
-│   └── compression/prune/        # Core dropping algorithms (block, layer, joint)
-│       └── models/               # Custom dropped-model classes per architecture
+│   └── compression/prune/                     # Core dropping algorithms (block, layer, joint)
+│       └── models/                            # Custom dropped-model classes per architecture
 ├── vm-eval/
-│   └── benchmark_vision.py       # Vision evaluation harness (finetune head + test)
+│   └── benchmark_vision.py                    # Vision evaluation harness (finetune head + test)
 ├── model-selection/
-│   └── pipeline.py               # Automated model selection pipeline
+│   └── pipeline.py                            # Automated model selection pipeline
 ├── model-healing/
-│   └── heal_model_vm.py          # LoRA-based recovery after layer dropping
+│   └── heal_model_vm.py                       # LoRA-based recovery after layer dropping
 └── visualization/
-    ├── compute_sdr.py            # SDR metric computation
+    ├── compute_sdr.py                         # SDR metric computation
     └── visualize_benchmark_results.py
 
 scripts/
-├── dropping/                     # Shell scripts for block/layer drop (LLM + vision)
-├── benchmark/                    # Evaluation and speed benchmark wrappers
-├── model-selection/              # Model selection runner
-├── healing/                      # Model healing runner
-└── visualization/                # SDR and result plotting
+├── dropping/                                  # Shell scripts for block/layer drop (LLM + vision)
+├── benchmark/                                 # Evaluation and speed benchmark wrappers
+├── model-selection/                           # Model selection runner
+├── healing/                                   # Model healing runner
+└── visualization/                             # SDR and result plotting
 ```
 
 ## 🧰 Prepare Models
@@ -219,7 +213,11 @@ Results are written to `src/visualization/sdr_results/`.
 bash scripts/benchmark/benchmark_lm_eval.sh
 ```
 
-Requires [EleutherAI/lm-evaluation-harness](https://github.com/EleutherAI/lm-evaluation-harness). Use the model files in `src/llmtuner/model/` when loading Mistral/Llama with dropped configs.
+- This benchmark depends on [EleutherAI/lm-evaluation-harness](https://github.com/EleutherAI/lm-evaluation-harness).
+- For strict reproduction, the repo uses this fork: [s1ghhh/lm-evaluation-harness](https://github.com/s1ghhh/lm-evaluation-harness).
+- Use modeling files in `src/llmtuner/model` when loading Mistral/Llama with dropped configs.
+
+Use the model files in `src/llmtuner/model/` when loading Mistral/Llama with dropped configs.
 
 ### ⚡ LLM inference speed
 
@@ -290,31 +288,5 @@ All datasets are stored as stratified HDF5 splits (`train.h5`, `val.h5`, `test.h
 
 </details>
 
-## 🔧 Model Healing
-
-After dropping layers, optional LoRA-based recovery fine-tuning can partially restore accuracy on the target dataset.
-
-```bash
-bash scripts/healing/heal_dropped_model.sh
-```
-
-## 📄 Citation
-
-If you use this work, please cite the original paper:
-
-```bibtex
-@article{
-    he2026uncovering,
-    title={Uncovering the Redundancy in Transformers via a Unified Study of Layer Dropping},
-    author={Shwai He and Guoheng Sun and Zheyu Shen and Ang Li},
-    journal={Transactions on Machine Learning Research},
-    issn={2835-8856},
-    year={2026},
-    url={https://openreview.net/forum?id=1I7PCbOPfe},
-}
-```
-
-## 📬 Contact
-
-- Alessandro Viespoli
-- Original authors: Shwai He (`shwaihe@umd.edu`), Guoheng Sun (`ghsun@umd.edu`)
+## 📬 Contributor
+- Alessandro Viespoli (`alessandro.viespoli@studenti.unipd.it`)
